@@ -1,0 +1,365 @@
+﻿Gemini Chat log
+
+
+make the code and explanations for assignment but don't do the readme yet. this in ipynb. so make sure the files import well and commonly missing ntlk modules are downloaded. leave comments and make code that is beginner readable as we just learned nltk. 
+
+
+Hey there! It sounds like you’re diving into the deep end of Natural Language Processing. NLTK is a powerful toolkit, but it can be a bit picky about downloading its data packages before it actually works.
+
+
+Since you are working in an .ipynb (Jupyter Notebook), I’ve structured this to handle the downloads first, followed by the specific tasks for your assignment using the texts provided (Martin.txt, RJ_Martin.txt, RJ_Tolkein.txt, and RJ_Lovecraft.txt).
+
+
+Here is the Python code for your notebook:
+
+
+Step 1: Setup and Downloads
+NLTK requires specific datasets (like punkt for tokenization) to be downloaded to your local machine or cloud environment.
+
+
+Python
+import nltk
+import os
+from collections import Counter
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+from nltk.corpus import stopwords
+from nltk.util import ngrams
+
+
+# Download the necessary NLTK datasets
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
+nltk.download('words')
+nltk.download('stopwords')
+
+
+# Define file names based on your assignment
+# Text_1 = Martin.txt, Text_2 = RJ_Martin.txt, Text_3 = RJ_Tolkein.txt, Text_4 = RJ_Lovecraft.txt
+files = ['Martin.txt', 'RJ_Martin.txt', 'RJ_Tolkein.txt', 'RJ_Lovecraft.txt']
+Step 2: Pre-processing (Tokenization, Stemming, Lemmatization)
+The assignment asks for the 20 most common tokens for the first three texts. We will filter out punctuation and "stopwords" (common words like 'the' or 'is') so we get meaningful results.
+
+
+Python
+def get_top_tokens(text_content):
+    # 1. Tokenize (split into words) and lowercase
+    tokens = word_tokenize(text_content.lower())
+    
+    # 2. Remove punctuation and stopwords
+    stop_words = set(stopwords.words('english'))
+    meaningful_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
+    
+    # 3. Stemming (chopping off suffixes)
+    stemmer = PorterStemmer()
+    stems = [stemmer.stem(token) for token in meaningful_tokens]
+    
+    # 4. Lemmatization (finding the root dictionary word)
+    lemmatizer = WordNetLemmatizer()
+    lemmas = [lemmatizer.lemmatize(token) for token in meaningful_tokens]
+    
+    # Get 20 most common lemmas for analysis
+    return Counter(lemmas).most_common(20)
+
+
+# Process the first three texts
+for file_path in files[:3]:
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            content = f.read()
+            print(f"--- Analysis for {file_path} ---")
+            print(f"Top 20 Tokens: {get_top_tokens(content)}\n")
+Step 3: Named Entity Recognition (NER)
+This counts "Named Entities" (People, Places, Organizations) to help determine the subject.
+
+
+Python
+def count_named_entities(text_content):
+    tokens = word_tokenize(text_content)
+    tags = nltk.pos_tag(tokens)
+    chunks = nltk.ne_chunk(tags)
+    
+    entities = 0
+    for chunk in chunks:
+        # If the chunk is a Tree object, it's a named entity
+        if hasattr(chunk, 'label'):
+            entities += 1
+    return entities
+
+
+for file_path in files[:3]:
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            content = f.read()
+            entity_count = count_named_entities(content)
+            print(f"{file_path} contains {entity_count} named entities.")
+Step 4: N-Gram Analysis (Trigrams)
+We are looking for the most common sequences of 3 words (n=3) to compare the writing styles of the first three texts against the fourth.
+
+
+Python
+def get_top_trigrams(text_content, n=3):
+    tokens = [w.lower() for w in word_tokenize(text_content) if w.isalnum()]
+    trigrams = list(ngrams(tokens, n))
+    return Counter(trigrams).most_common(5)
+
+
+# Analyze all four texts
+for file_path in files:
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            content = f.read()
+            print(f"Top Trigrams for {file_path}:")
+            print(f"{get_top_trigrams(content)}\n")
+Summary of Findings (Analytical Questions)
+Based on the code output above, here is the logic for your analysis:
+
+
+Subject Determination: * Text 1 (Martin.txt): Features tokens like "Eldermore," "Aldric," and "keep." Subject: A fantasy family feud and ancient curse.
++1
+
+
+Text 2 (RJ_Martin.txt) & Text 3 (RJ_Tolkein.txt): Feature tokens like "Romeo," "Juliet," and "Verona." Subject: The tragedy of Romeo and Juliet retold in different styles.
++1
+
+
+
+
+Author Identification for Text 4: * By comparing the trigrams of RJ_Lovecraft.txt (Text 4) with the others, you'll notice a heavy use of "eldritch," "cosmic," and "abyss".
+
+
+While Texts 2 and 3 share the subject (Romeo and Juliet) with Text 4, the writing style and unique n-grams of Text 2 (RJ_Martin.txt)—which focuses on "houses," "blood," and "feud" —closely mirror the vocabulary used in Text 1 (Martin.txt). Therefore, the author of Text 1 likely wrote Text 2.
+
+
+Quick Tip for IUPUI: Make sure those .txt files are in the same folder as your .ipynb file, otherwise the code won't find them! Do you need help drafting the "Limitations" section for your ReadMe next?
+
+
+Hey here's the order for the txt files
+
+
+Text_1 = RJ_Lovecraft.txt
+
+
+Text_2 = RJ_Tolkein.txt
+
+
+Text_3 = RJ_Martin.txt
+
+
+Text_4 = Martin.txt
+
+
+Got it! Thanks for the clarification on the file order. That definitely changes the "who wrote what" analysis since we are now comparing the style of the three Romeo and Juliet variations against the original fantasy story in Martin.txt.
+
+
+Here is the updated code and the specific analysis for your assignment.
+
+
+Python Code for Jupyter Notebook
+Python
+import nltk
+import os
+from collections import Counter
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+from nltk.corpus import stopwords
+from nltk.util import ngrams
+
+
+# 1. Essential Downloads for NLTK
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
+nltk.download('words')
+nltk.download('stopwords')
+
+
+# 2. File Setup based on your specific order
+# Text_1: Lovecraft style, Text_2: Tolkien style, Text_3: Martin style, Text_4: Fantasy Original
+files = {
+    "Text_1": "RJ_Lovecraft.txt",
+    "Text_2": "RJ_Tolkein.txt",
+    "Text_3": "RJ_Martin.txt",
+    "Text_4": "Martin.txt"
+}
+
+
+def process_text(file_name):
+    if not os.path.exists(file_name):
+        return None
+    with open(file_name, 'r') as f:
+        return f.read()
+
+
+# 3. Tokenization, Stemming, and Lemmatization
+def get_analysis(text_content):
+    # Tokenize and clean (remove stop words and non-alphabetic characters)
+    stop_words = set(stopwords.words('english'))
+    tokens = [w.lower() for w in word_tokenize(text_content) if w.isalpha() and w.lower() not in stop_words]
+    
+    # Stemming
+    stemmer = PorterStemmer()
+    stems = [stemmer.stem(t) for t in tokens]
+    
+    # Lemmatization
+    lemmatizer = WordNetLemmatizer()
+    lemmas = [lemmatizer.lemmatize(t) for t in tokens]
+    
+    return Counter(lemmas).most_common(20)
+
+
+# 4. Named Entity Recognition
+def count_entities(text_content):
+    tokens = word_tokenize(text_content)
+    tags = nltk.pos_tag(tokens)
+    tree = nltk.ne_chunk(tags)
+    return sum(1 for leaf in tree if hasattr(leaf, 'label'))
+
+
+# 5. N-Gram Analysis (Trigrams)
+def get_trigrams(text_content):
+    tokens = [w.lower() for w in word_tokenize(text_content) if w.isalpha()]
+    trigs = list(ngrams(tokens, 3))
+    return Counter(trigs).most_common(5)
+
+
+# Execution Loop
+for label, filename in files.items():
+    content = process_text(filename)
+    if content:
+        print(f"--- {label} ({filename}) ---")
+        print(f"Top 20 Lemmas: {get_analysis(content)}")
+        print(f"Named Entities: {count_entities(content)}")
+        print(f"Top Trigrams: {get_trigrams(content)}\n")
+Analysis & Answers for your Assignment
+Determining the Subjects
+
+
+Text 1 (RJ_Lovecraft.txt): The subject is the tragedy of Romeo and Juliet , but framed through a cosmic horror lens involving "eldritch secrets," "ancient pacts," and "abyssal embraces".
++3
+
+
+
+
+Text 2 (RJ_Tolkein.txt): The subject is also Romeo and Juliet , but written as a high-fantasy epic featuring "elven scholars," "elvish craft," and "emerald glens".
++3
+
+
+
+
+Text 3 (RJ_Martin.txt): Again, the subject is Romeo and Juliet , but presented as a political drama of "blood feuds," "ancestral keeps," and "hidden machinations".
++3
+
+
+Author Identification (Who wrote Text 4?)
+Using the n-gram and vocabulary analysis, we can determine which author of the first three texts wrote Text 4 (Martin.txt):
+
+
+The Author of Text 3 wrote Text 4.
+
+
+Evidence: Text 3 and Text 4 share specific "Martin-esque" terminology and themes. For example, Text 3 uses terms like "feuding houses," "ancestral keep," and "blood-drenched". Text 4 mirrors this exact style, focusing on "House Eldermore," an "imposing keep," and "bitter feuds".
++2
+
+
+
+
+N-gram Overlap: You will likely find trigrams related to "House [Name]" or descriptions of "cold/iron" power dynamics in both. While Text 1 and 2 share the story of Romeo and Juliet, Text 3 and Text 4 share the same voice—grim, political, and focused on noble lineages.
++2
+
+
+This should give you everything you need for the .ipynb file. Just let me know when you're ready to tackle that ReadMe!
+
+
+ok do the readme
+
+
+Project ReadMe: Natural Language Processing Analysis
+Purpose
+The purpose of this project is to perform a comparative natural language processing (NLP) analysis on four distinct unstructured text files. By using the Natural Language Toolkit (NLTK), the project demonstrates how to programmatically derive meaning, identify subjects, and recognize authorial patterns across different writing styles.
++1
+
+
+Class Design and Implementation
+The implementation follows a functional programming approach in Python, utilizing specific modules from NLTK to handle the complexities of human language.
++1
+
+
+1. Data Pre-processing Method
+
+
+Tokenization: Splits the raw text into individual words or "tokens" to make the data digestible for the machine.
++1
+
+
+
+
+Stemming: Uses the PorterStemmer to chop words down to their root form (e.g., "feuding" becomes "feud").
++1
+
+
+
+
+Lemmatization: Uses the WordNetLemmatizer to find the actual dictionary root of a word, which is more linguistically accurate than stemming.
++1
+
+
+
+
+Filtering: The method removes "stopwords" (common words like "the" or "and") and non-alphabetic characters to focus on meaningful content.
+
+
+2. Named Entity Recognition (NER) Method
+
+
+Function: This method tags parts of speech and then "chunks" them to identify proper nouns such as people, places, and organizations.
+
+
+
+
+Usage: Identifying high concentrations of entities like "Verona," "Romeo," or "House Eldermore" helps the program determine the geographical and character-based subject of the text.
++3
+
+
+3. N-Gram Analysis Method
+
+
+Function: This method generates "trigrams" (n=3), which are sequences of three consecutive words.
++1
+
+
+
+
+Purpose: Trigrams are used to identify unique "fingerprints" in an author's writing style to determine if the author of the first three texts wrote the fourth.
+
+
+Class Attributes and Logic
+
+
+files: A dictionary attribute mapping the text labels (Text_1 through Text_4) to their respective filenames to ensure the analysis follows the required order.
+
+
+
+
+nltk.download: These attributes are necessary to fetch the linguistic databases (like the Maxent NE Chunker or WordNet) required for the code to run in a fresh environment.
+
+
+
+
+Counter: Used to track the frequency of lemmas and n-grams to provide the "top 20" and "top 5" lists required by the assignment.
++1
+
+
+Limitations
+Stopword Dependency: The accuracy of the "Most Common Tokens" is dependent on the NLTK stopword list; some context-specific words may still appear if they aren't in the default list.
+
+
+NER Accuracy: Named Entity Recognition can occasionally misidentify capitalized words at the start of sentences as proper nouns, which may slightly inflate the entity count.
+
+
+N-Gram Context: Trigrams provide a stylistic snapshot but do not account for overall plot structure, meaning they are best used alongside lemmatization for author identification.
